@@ -3,18 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https:; connect-src 'self';">
   <title>OER Finder Plugin - Example</title>
 </head>
 <body>
   <div class="demo-container">
     <h1>OER Finder Plugin - Example</h1>
+    <p class="subtitle">Explore and discover Open Educational Resources from the Nostr network</p>
 
-    <div class="demo-section">
-      <h2>Basic Component</h2>
-      <p>Default component without attributes:</p>
-      <oer-hello></oer-hello>
-    </div>
+    <oer-theme-provider id="custom-theme-provider">
+      <div class="demo-section">
+        <h2>Custom Theme Example</h2>
+        <p class="info-text">This section uses a custom theme set programmatically</p>
+        <oer-search id="oer-search-custom" api-url="http://localhost:3000" language="de"></oer-search>
+        <oer-list id="oer-list-custom" language="de"></oer-list>
+      </div>
+    </oer-theme-provider>
   </div>
 
   <script type="module" src="/src/main.ts"></script>
