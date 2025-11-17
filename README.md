@@ -53,7 +53,23 @@ npm install github:edufeed-org/oer-finder-plugin#packages/oer-finder-plugin
 ```
 
 ```html
-<oer-finder api-url="http://localhost:3000"></oer-finder>
+<oer-search api-url="http://localhost:3000"></oer-search>
+<oer-list></oer-list>
+```
+
+**Customize colors with CSS:**
+
+```html
+<style>
+  oer-search, oer-list, oer-card {
+    --primary-color: #8b5cf6;
+    --primary-hover-color: #7c3aed;
+    --secondary-color: #ec4899;
+  }
+</style>
+
+<oer-search api-url="http://localhost:3000"></oer-search>
+<oer-list></oer-list>
 ```
 
 **📚 [Full Client Package Guide](./docs/client-packages.md)** - Installation, usage examples, and API reference
@@ -109,4 +125,5 @@ See [Server Setup Guide](./docs/server-setup.md#development) for detailed develo
 
 ## License
 
-MIT
+Main project: MIT
+The oer-finder-plugin makes use of lit which is licensed under BSD-3.
