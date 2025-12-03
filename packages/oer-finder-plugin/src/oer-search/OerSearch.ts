@@ -9,6 +9,7 @@ import {
 } from '../translations.js';
 import { COMMON_LICENSES, FILTER_LANGUAGES, DEFAULT_SOURCE } from '../constants.js';
 import { styles } from './styles.js';
+import type { OerPageChangeEvent } from '../pagination/Pagination.js';
 
 type OerItem = components['schemas']['OerItemSchema'];
 
@@ -109,7 +110,23 @@ export class OerSearchElement extends LitElement {
         source: this.lockedSource,
       };
     }
+
+    // Listen for page-change events from slotted children (e.g., oer-list with oer-pagination)
+    this.addEventListener('page-change', this.handleSlottedPageChange);
   }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener('page-change', this.handleSlottedPageChange);
+  }
+
+  private handleSlottedPageChange = (event: Event) => {
+    const customEvent = event as CustomEvent<OerPageChangeEvent>;
+    // Prevent event from bubbling further - we handle it here
+    event.stopPropagation();
+    this.searchParams = { ...this.searchParams, page: customEvent.detail.page };
+    void this.performSearch();
+  };
 
   updated(changedProperties: Map<string, unknown>) {
     super.updated(changedProperties);
@@ -277,132 +294,132 @@ export class OerSearchElement extends LitElement {
     this.advancedFiltersExpanded = !this.advancedFiltersExpanded;
   }
 
-  public handlePageChange(newPage: number) {
-    this.searchParams = { ...this.searchParams, page: newPage };
-    void this.performSearch();
-  }
-
   render() {
     return html`
-      <div class="search-container">
-        <h2 class="search-header">${this.t.headerTitle}</h2>
-        <form class="search-form" @submit="${this.handleSubmit}">
-          <div class="form-group">
-            <label for="searchTerm">${this.t.keywordsLabel}</label>
-            <input
-              id="searchTerm"
-              type="text"
-              placeholder="${this.t.keywordsPlaceholder}"
-              .value="${this.searchParams.searchTerm || ''}"
-              @input="${this.handleInputChange('searchTerm')}"
-              required
-            />
-          </div>
-
-          ${this.showTypeFilter && !this.lockedType
-            ? html`
-                <div class="form-group">
-                  <label for="type">${this.t.typeLabel}</label>
-                  <input
-                    id="type"
-                    type="text"
-                    placeholder="${this.t.typePlaceholder}"
-                    .value="${this.searchParams.type || ''}"
-                    @input="${this.handleInputChange('type')}"
-                  />
-                </div>
-              `
-            : ''}
-
-          <button
-            type="button"
-            class="toggle-filters-button"
-            @click="${this.toggleAdvancedFilters}"
-          >
-            ${this.advancedFiltersExpanded
-              ? this.t.advancedFiltersHideText
-              : this.t.advancedFiltersShowText}
-          </button>
-
-          <div class="advanced-filters ${this.advancedFiltersExpanded ? 'expanded' : ''}">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="language">${this.t.languageLabel}</label>
-                <select
-                  id="language"
-                  .value="${this.searchParams.language || ''}"
-                  @change="${this.handleInputChange('language')}"
-                >
-                  <option value="">${this.t.anyOptionText}</option>
-                  ${FILTER_LANGUAGES.map(
-                    (lang) => html` <option value="${lang.code}">${lang.label}</option> `,
-                  )}
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label for="license">${this.t.licenseLabel}</label>
-                <select
-                  id="license"
-                  .value="${this.searchParams.license || ''}"
-                  @change="${this.handleInputChange('license')}"
-                >
-                  <option value="">${this.t.anyOptionText}</option>
-                  ${COMMON_LICENSES.map(
-                    (license) => html`
-                      <option value="${license.uri}">${license.shortName}</option>
-                    `,
-                  )}
-                </select>
-              </div>
-            </div>
-
+      <div class="search-wrapper">
+        <div class="search-container">
+          <h2 class="search-header">${this.t.headerTitle}</h2>
+          <form class="search-form" @submit="${this.handleSubmit}">
             <div class="form-group">
-              <label for="free_for_use">${this.t.freeForUseLabel}</label>
-              <select
-                id="free_for_use"
-                .value="${this.searchParams.free_for_use === undefined
-                  ? ''
-                  : String(this.searchParams.free_for_use)}"
-                @change="${this.handleBooleanChange('free_for_use')}"
-              >
-                <option value="">${this.t.anyOptionText}</option>
-                <option value="true">${this.t.yesOptionText}</option>
-                <option value="false">${this.t.noOptionText}</option>
-              </select>
+              <label for="searchTerm">${this.t.keywordsLabel}</label>
+              <input
+                id="searchTerm"
+                type="text"
+                placeholder="${this.t.keywordsPlaceholder}"
+                .value="${this.searchParams.searchTerm || ''}"
+                @input="${this.handleInputChange('searchTerm')}"
+                required
+              />
             </div>
 
-            ${this.showSourceFilter && !this.lockedSource && this.availableSources.length > 0
+            ${this.showTypeFilter && !this.lockedType
               ? html`
                   <div class="form-group">
-                    <label for="source">${this.t.sourceLabel}</label>
-                    <select
-                      id="source"
-                      .value="${this.searchParams.source || DEFAULT_SOURCE}"
-                      @change="${this.handleInputChange('source')}"
-                    >
-                      ${this.availableSources.map(
-                        (source) => html`
-                          <option value="${source.value}">${source.label}</option>
-                        `,
-                      )}
-                    </select>
+                    <label for="type">${this.t.typeLabel}</label>
+                    <input
+                      id="type"
+                      type="text"
+                      placeholder="${this.t.typePlaceholder}"
+                      .value="${this.searchParams.type || ''}"
+                      @input="${this.handleInputChange('type')}"
+                    />
                   </div>
                 `
               : ''}
-          </div>
 
-          <div class="button-group">
-            <button type="submit" class="search-button" ?disabled="${this.loading}">
-              ${this.loading ? this.t.searchingText : this.t.searchButtonText}
+            <button
+              type="button"
+              class="toggle-filters-button"
+              @click="${this.toggleAdvancedFilters}"
+            >
+              ${this.advancedFiltersExpanded
+                ? this.t.advancedFiltersHideText
+                : this.t.advancedFiltersShowText}
             </button>
-            <button type="button" class="clear-button" @click="${this.handleClear}">
-              ${this.t.clearButtonText}
-            </button>
-          </div>
 
-          ${this.error ? html`<div class="error-message">${this.error}</div>` : ''}
-        </form>
+            <div class="advanced-filters ${this.advancedFiltersExpanded ? 'expanded' : ''}">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="language">${this.t.languageLabel}</label>
+                  <select
+                    id="language"
+                    .value="${this.searchParams.language || ''}"
+                    @change="${this.handleInputChange('language')}"
+                  >
+                    <option value="">${this.t.anyOptionText}</option>
+                    ${FILTER_LANGUAGES.map(
+                      (lang) => html` <option value="${lang.code}">${lang.label}</option> `,
+                    )}
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="license">${this.t.licenseLabel}</label>
+                  <select
+                    id="license"
+                    .value="${this.searchParams.license || ''}"
+                    @change="${this.handleInputChange('license')}"
+                  >
+                    <option value="">${this.t.anyOptionText}</option>
+                    ${COMMON_LICENSES.map(
+                      (license) => html`
+                        <option value="${license.uri}">${license.shortName}</option>
+                      `,
+                    )}
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="free_for_use">${this.t.freeForUseLabel}</label>
+                <select
+                  id="free_for_use"
+                  .value="${this.searchParams.free_for_use === undefined
+                    ? ''
+                    : String(this.searchParams.free_for_use)}"
+                  @change="${this.handleBooleanChange('free_for_use')}"
+                >
+                  <option value="">${this.t.anyOptionText}</option>
+                  <option value="true">${this.t.yesOptionText}</option>
+                  <option value="false">${this.t.noOptionText}</option>
+                </select>
+              </div>
+
+              ${this.showSourceFilter && !this.lockedSource && this.availableSources.length > 0
+                ? html`
+                    <div class="form-group">
+                      <label for="source">${this.t.sourceLabel}</label>
+                      <select
+                        id="source"
+                        .value="${this.searchParams.source || DEFAULT_SOURCE}"
+                        @change="${this.handleInputChange('source')}"
+                      >
+                        ${this.availableSources.map(
+                          (source) => html`
+                            <option value="${source.value}">${source.label}</option>
+                          `,
+                        )}
+                      </select>
+                    </div>
+                  `
+                : ''}
+            </div>
+
+            <div class="button-group">
+              <button type="submit" class="search-button" ?disabled="${this.loading}">
+                ${this.loading ? this.t.searchingText : this.t.searchButtonText}
+              </button>
+              <button type="button" class="clear-button" @click="${this.handleClear}">
+                ${this.t.clearButtonText}
+              </button>
+            </div>
+
+            ${this.error ? html`<div class="error-message">${this.error}</div>` : ''}
+          </form>
+        </div>
+        <div class="slot-container">
+          <slot></slot>
+        </div>
       </div>
     `;
   }

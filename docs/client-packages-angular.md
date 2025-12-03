@@ -33,6 +33,8 @@ export class OerFinderModule {}
 
 ## Basic Usage
 
+The recommended pattern is to slot `<oer-list>` and `<oer-pagination>` inside `<oer-search>` for automatic pagination handling.
+
 ### Component
 
 ```typescript
@@ -47,35 +49,41 @@ import '@edufeed-org/oer-finder-plugin';
 export class OerFinderComponent {
   @ViewChild('searchElement') searchElement!: ElementRef;
   @ViewChild('listElement') listElement!: ElementRef;
+  @ViewChild('paginationElement') paginationElement!: ElementRef;
 
-  ngAfterViewInit(): void {
-    // Wire up pagination
-    this.listElement.nativeElement.onPageChange = (page: number) => {
-      this.searchElement.nativeElement.handlePageChange(page);
-    };
-  }
+  // Note: Page-change events from oer-pagination bubble up and are
+  // automatically caught by oer-search to trigger new searches.
 
   onSearchResults(event: Event): void {
     const { data, meta } = (event as CustomEvent<OerSearchResultEvent>).detail;
     const listEl = this.listElement.nativeElement;
+    const paginationEl = this.paginationElement.nativeElement;
     listEl.oers = data;
-    listEl.showPagination = true;
-    listEl.metadata = meta;
+    listEl.loading = false;
+    // Set metadata and loading on the pagination element
+    paginationEl.metadata = meta;
+    paginationEl.loading = false;
   }
 
   onSearchError(event: Event): void {
     const { error } = (event as CustomEvent<{ error: string }>).detail;
     const listEl = this.listElement.nativeElement;
+    const paginationEl = this.paginationElement.nativeElement;
     listEl.oers = [];
     listEl.error = error;
-    listEl.showPagination = false;
+    listEl.loading = false;
+    paginationEl.metadata = null;
+    paginationEl.loading = false;
   }
 
   onSearchCleared(): void {
     const listEl = this.listElement.nativeElement;
+    const paginationEl = this.paginationElement.nativeElement;
     listEl.oers = [];
     listEl.error = null;
-    listEl.showPagination = false;
+    listEl.loading = false;
+    paginationEl.metadata = null;
+    paginationEl.loading = false;
   }
 
   onCardClick(event: Event): void {
@@ -96,13 +104,17 @@ export class OerFinderComponent {
   (search-results)="onSearchResults($event)"
   (search-error)="onSearchError($event)"
   (search-cleared)="onSearchCleared()"
-></oer-search>
-
-<oer-list
-  #listElement
-  language="de"
-  (card-click)="onCardClick($event)"
-></oer-list>
+>
+  <oer-list
+    #listElement
+    language="de"
+    (card-click)="onCardClick($event)"
+  ></oer-list>
+  <oer-pagination
+    #paginationElement
+    language="de"
+  ></oer-pagination>
+</oer-search>
 ```
 
 ## Passing Complex Properties

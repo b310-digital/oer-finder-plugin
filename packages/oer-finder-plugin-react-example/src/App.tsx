@@ -5,14 +5,14 @@
  * @edufeed-org/oer-finder-plugin-react components in a React application.
  */
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import './styles.css';
 
 // Import React components from the plugin-react package
 import {
   OerSearch,
   OerList,
-  type OerSearchElement,
+  OerPagination,
   type OerSearchResultEvent,
   type OerCardClickEvent,
   type OerItem,
@@ -20,13 +20,11 @@ import {
 } from '@edufeed-org/oer-finder-plugin-react';
 
 function App() {
-  const searchRef = useRef<OerSearchElement | null>(null);
-
   // State for the list component
   const [oers, setOers] = useState<OerItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showPagination, setShowPagination] = useState(false);
+  // State for pagination component
   const [metadata, setMetadata] = useState<OerMetadata | null>(null);
 
   const handleSearchResults = useCallback(
@@ -35,7 +33,6 @@ function App() {
       setOers(data);
       setLoading(false);
       setError(null);
-      setShowPagination(true);
       setMetadata(meta);
     },
     [],
@@ -45,7 +42,6 @@ function App() {
     setOers([]);
     setLoading(false);
     setError(event.detail.error);
-    setShowPagination(false);
     setMetadata(null);
   }, []);
 
@@ -53,7 +49,6 @@ function App() {
     setOers([]);
     setLoading(false);
     setError(null);
-    setShowPagination(false);
     setMetadata(null);
   }, []);
 
@@ -67,10 +62,6 @@ function App() {
     } else {
       alert(`OER: ${oer.amb_metadata?.name || 'Unknown'}\nNo URL available`);
     }
-  }, []);
-
-  const handlePageChange = useCallback((page: number) => {
-    searchRef.current?.handlePageChange(page);
   }, []);
 
   return (
@@ -87,7 +78,6 @@ function App() {
           <code>styles.css</code> to see how colors are customized.
         </p>
         <OerSearch
-          ref={searchRef}
           apiUrl="http://localhost:3001"
           language="de"
           pageSize={5}
@@ -98,17 +88,16 @@ function App() {
           onSearchResults={handleSearchResults}
           onSearchError={handleSearchError}
           onSearchCleared={handleSearchCleared}
-        />
-        <OerList
-          oers={oers}
-          loading={loading}
-          error={error}
-          language="de"
-          showPagination={showPagination}
-          metadata={metadata}
-          onPageChange={handlePageChange}
-          onCardClick={handleCardClick}
-        />
+        >
+          <OerList
+            oers={oers}
+            loading={loading}
+            error={error}
+            language="de"
+            onCardClick={handleCardClick}
+          />
+          <OerPagination metadata={metadata} loading={loading} language="de" />
+        </OerSearch>
       </div>
     </div>
   );
