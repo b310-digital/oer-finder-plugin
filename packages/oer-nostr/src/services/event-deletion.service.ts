@@ -1,6 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import type { Event } from 'nostr-tools/core';
+import type { Event } from 'nostr-tools';
 import {
   EVENT_FILE_KIND,
   EVENT_AMB_KIND,
@@ -10,9 +10,9 @@ import {
   createNostrSourceIdentifier,
 } from '../constants/source.constants';
 import type {
-  OerSourceEntity,
-  OpenEducationalResourceEntity,
-} from '../types/entities.types';
+  OerSource,
+  OpenEducationalResource,
+} from '@edufeed-org/oer-entities';
 import {
   parseNostrEventData,
   type NostrEventData,
@@ -41,9 +41,9 @@ export class EventDeletionService {
 
   constructor(
     @Inject(OER_REPOSITORY)
-    private readonly oerRepository: Repository<OpenEducationalResourceEntity>,
+    private readonly oerRepository: Repository<OpenEducationalResource>,
     @Inject(OER_SOURCE_REPOSITORY)
-    private readonly oerSourceRepository: Repository<OerSourceEntity>,
+    private readonly oerSourceRepository: Repository<OerSource>,
   ) {}
 
   /**

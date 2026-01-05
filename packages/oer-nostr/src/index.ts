@@ -1,3 +1,6 @@
+// Config
+export { nostrConfig } from './config/nostr.config';
+
 // Constants
 export {
   EVENT_FILE_KIND,
@@ -8,9 +11,7 @@ export {
 export {
   SOURCE_NAME_NOSTR,
   createNostrSourceIdentifier,
-  createNostrSourceIdentifierWithRelay,
   createNostrSourceUri,
-  extractRelayUrlFromSourceUri,
 } from './constants/source.constants';
 
 // Types
@@ -19,12 +20,6 @@ export type {
   RelaySubscriptionConfig,
 } from './types/relay-connection.types';
 export { DEFAULT_SUBSCRIPTION_CONFIG } from './types/relay-connection.types';
-
-export type {
-  OerSourceEntity,
-  OpenEducationalResourceEntity,
-  OerExtractionServiceInterface,
-} from './types/entities.types';
 
 export type {
   FileMetadataFields,
@@ -40,6 +35,12 @@ export {
   DatabaseErrorClassifier,
   PostgresErrorCode,
 } from './utils/database-error.classifier';
+export {
+  parseDate,
+  getLatestDate,
+  createDateFields,
+  extractDatesFromMetadata,
+} from './utils/date-parser.util';
 export {
   EventValidator,
   type EventValidationResult,
@@ -68,6 +69,24 @@ export {
   type NostrEventData,
   type ParseNostrEventResult,
 } from './schemas/nostr-event.schema';
+export { NostrEnvSchema, type NostrEnv } from './schemas/nostr-env.schema';
+
+// Metadata extractors
+export {
+  extractAmbMetadata,
+  extractFileMetadataFields,
+  extractNestedId,
+  extractLicenseInfo,
+  extractKeywords,
+  normalizeInLanguage,
+} from './utils/metadata-extractor.util';
+
+// OER entity mapper
+export {
+  buildOerEntity,
+  updateOerEntity,
+  applyFileMetadataToEntity,
+} from './utils/oer-entity.mapper';
 
 // Services
 export {
@@ -87,15 +106,10 @@ export {
   EVENT_DELETION_SERVICE,
 } from './services/event-deletion.service';
 export {
+  OerStorageService,
+  OER_STORAGE_SERVICE,
+} from './services/oer-storage.service';
+export {
   OerExtractionService,
   OER_EXTRACTION_SERVICE,
 } from './services/oer-extraction.service';
-
-// Testing utilities
-export {
-  NostrEventFactory,
-  EventFactory,
-  nostrEventFixtures,
-  eventFactoryHelpers,
-  type NostrEventTestData,
-} from './testing';

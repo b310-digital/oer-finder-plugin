@@ -2,8 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { OpenEducationalResource } from '../src/oer/entities/open-educational-resource.entity';
-import { OerSource } from '../src/oer/entities/oer-source.entity';
+import { OpenEducationalResource, OerSource } from '@edufeed-org/oer-entities';
 import {
   EventDeletionService,
   NostrEventDatabaseService,
@@ -117,10 +116,10 @@ describe('Event Deletion Integration Tests (e2e)', () => {
         id: 'amb-event-1',
         pubkey,
       });
-      await saveEvent(ambEventData);
+      const ambSource = await saveEvent(ambEventData);
 
       // Extract OER
-      const oer = await oerExtractionService.extractOerFromEvent(ambEventData);
+      const oer = await oerExtractionService.extractOerFromSource(ambSource);
       expect(oer).toBeDefined();
 
       // Verify OerSource was created
@@ -159,10 +158,10 @@ describe('Event Deletion Integration Tests (e2e)', () => {
         id: 'amb-event-2',
         pubkey: 'original-pubkey',
       });
-      await saveEvent(ambEventData);
+      const ambSource = await saveEvent(ambEventData);
 
       // Extract OER
-      const oer = await oerExtractionService.extractOerFromEvent(ambEventData);
+      const oer = await oerExtractionService.extractOerFromSource(ambSource);
       expect(oer).toBeDefined();
 
       // Create deletion event with different pubkey
@@ -206,10 +205,10 @@ describe('Event Deletion Integration Tests (e2e)', () => {
           ['e', 'file-event-1', 'wss://relay.example.com', 'file'],
         ],
       });
-      await saveEvent(ambEventData);
+      const ambSource = await saveEvent(ambEventData);
 
       // Extract OER
-      const oer = await oerExtractionService.extractOerFromEvent(ambEventData);
+      const oer = await oerExtractionService.extractOerFromSource(ambSource);
       expect(oer).toBeDefined();
       expect(oer.file_mime_type).toBe('image/png');
       expect(oer.file_dim).toBe('1920x1080');
@@ -273,7 +272,7 @@ describe('Event Deletion Integration Tests (e2e)', () => {
           ['type', 'LearningResource'],
         ],
       });
-      await saveEvent(ambEventData1);
+      const ambSource1 = await saveEvent(ambEventData1);
 
       const ambEventData2 = nostrEventFixtures.ambMinimal({
         id: 'amb-event-5',
@@ -283,11 +282,11 @@ describe('Event Deletion Integration Tests (e2e)', () => {
           ['type', 'LearningResource'],
         ],
       });
-      await saveEvent(ambEventData2);
+      const ambSource2 = await saveEvent(ambEventData2);
 
       // Extract OERs
-      await oerExtractionService.extractOerFromEvent(ambEventData1);
-      await oerExtractionService.extractOerFromEvent(ambEventData2);
+      await oerExtractionService.extractOerFromSource(ambSource1);
+      await oerExtractionService.extractOerFromSource(ambSource2);
 
       let oerCount = await oerRepository.count();
       expect(oerCount).toBe(2);
@@ -339,10 +338,10 @@ describe('Event Deletion Integration Tests (e2e)', () => {
         id: 'amb-event-6',
         pubkey,
       });
-      await saveEvent(ambEventData);
+      const ambSource = await saveEvent(ambEventData);
 
       // Extract OER
-      await oerExtractionService.extractOerFromEvent(ambEventData);
+      await oerExtractionService.extractOerFromSource(ambSource);
 
       // Mock a database error by closing the connection temporarily
       // This test is more conceptual - in reality we'd need to inject a failing manager

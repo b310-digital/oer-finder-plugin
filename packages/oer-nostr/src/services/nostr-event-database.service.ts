@@ -1,6 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import type { Event } from 'nostr-tools/core';
+import type { Event } from 'nostr-tools';
 import { DatabaseErrorClassifier } from '../utils/database-error.classifier';
 import { EVENT_AMB_KIND } from '../constants/event-kinds.constants';
 import {
@@ -8,7 +8,7 @@ import {
   createNostrSourceIdentifier,
   createNostrSourceUri,
 } from '../constants/source.constants';
-import type { OerSourceEntity } from '../types/entities.types';
+import type { OerSource } from '@edufeed-org/oer-entities';
 
 /**
  * Injection token for OerSource repository
@@ -25,7 +25,7 @@ export const NOSTR_EVENT_DATABASE_SERVICE = 'NOSTR_EVENT_DATABASE_SERVICE';
  * Provides type-safe handling of success/duplicate cases.
  */
 export type SaveEventResult =
-  | { success: true; source: OerSourceEntity }
+  | { success: true; source: OerSource }
   | { success: false; reason: 'duplicate' }
   | { success: false; reason: 'error'; error: unknown };
 
@@ -48,7 +48,7 @@ export class NostrEventDatabaseService {
 
   constructor(
     @Inject(OER_SOURCE_REPOSITORY)
-    private readonly repository: Repository<OerSourceEntity>,
+    private readonly repository: Repository<OerSource>,
   ) {}
 
   /**
@@ -106,7 +106,7 @@ export class NostrEventDatabaseService {
    * @param eventId - The Nostr event ID to search for
    * @returns The OerSource if found, null otherwise
    */
-  async findEventById(eventId: string): Promise<OerSourceEntity | null> {
+  async findEventById(eventId: string): Promise<OerSource | null> {
     const sourceIdentifier = createNostrSourceIdentifier(eventId);
     return this.repository.findOne({
       where: {
@@ -122,7 +122,7 @@ export class NostrEventDatabaseService {
    * @param criteria - Search criteria for events
    * @returns Array of matching OerSources
    */
-  async findEvents(criteria: FindEventCriteria): Promise<OerSourceEntity[]> {
+  async findEvents(criteria: FindEventCriteria): Promise<OerSource[]> {
     const where: Record<string, unknown> = {
       source_name: SOURCE_NAME_NOSTR,
     };
@@ -146,7 +146,7 @@ export class NostrEventDatabaseService {
    *
    * @returns Array of OerSources with pending AMB events
    */
-  async findUnprocessedOerEvents(): Promise<OerSourceEntity[]> {
+  async findUnprocessedOerEvents(): Promise<OerSource[]> {
     try {
       return await this.repository.find({
         where: {
@@ -190,38 +190,6 @@ export class NostrEventDatabaseService {
         source_record_type: recordType,
       },
     });
-  }
-
-  /**
-   * Gets the most recent source timestamp for specified record types.
-   * Used to resume synchronization from the last known event on server restart.
-   *
-   * @param recordTypes - Array of record types to consider (e.g., ['30142', '1063'])
-   * @returns The most recent source_timestamp, or null if no events exist
-   * @deprecated Use getLatestTimestampsByRelay for per-relay synchronization
-   */
-  async getLatestTimestamp(recordTypes: string[]): Promise<number | null> {
-    try {
-      const result = await this.repository
-        .createQueryBuilder('source')
-        .select('MAX(source.source_timestamp)', 'max_timestamp')
-        .where('source.source_name = :sourceName', {
-          sourceName: SOURCE_NAME_NOSTR,
-        })
-        .andWhere('source.source_record_type IN (:...recordTypes)', {
-          recordTypes,
-        })
-        .getRawOne<{ max_timestamp: string | null }>();
-
-      // source_timestamp is stored as bigint, which comes back as string
-      return result?.max_timestamp ? parseInt(result.max_timestamp, 10) : null;
-    } catch (error) {
-      this.logger.error(
-        `Failed to get latest timestamp: ${DatabaseErrorClassifier.extractErrorMessage(error)}`,
-        DatabaseErrorClassifier.extractStackTrace(error),
-      );
-      throw error;
-    }
   }
 
   /**

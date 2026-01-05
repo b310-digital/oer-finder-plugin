@@ -4,8 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { OerSource } from './oer/entities/oer-source.entity';
-import { OpenEducationalResource } from './oer/entities/open-educational-resource.entity';
+import { OerSource, OpenEducationalResource } from '@edufeed-org/oer-entities';
 import { NostrModule } from './nostr/nostr.module';
 // Re-export services from package for convenience
 export {
@@ -13,10 +12,10 @@ export {
   NostrEventDatabaseService,
   EventDeletionService,
 } from '@edufeed-org/oer-nostr';
+import { nostrConfig } from '@edufeed-org/oer-nostr';
 import { OerModule } from './oer/oer.module';
 import appConfig from './config/configuration';
 import databaseConfig from './config/database.config';
-import nostrConfig from './config/nostr.config';
 import { validateEnv } from './config/env.validation';
 
 @Module({

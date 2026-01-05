@@ -6,16 +6,17 @@ import {
   NostrClientService,
   NostrEventDatabaseService,
   EventDeletionService,
+  OerStorageService,
   OerExtractionService,
   OER_SOURCE_REPOSITORY,
   OER_REPOSITORY,
   CONFIG_SERVICE,
   NOSTR_EVENT_DATABASE_SERVICE,
   EVENT_DELETION_SERVICE,
+  OER_STORAGE_SERVICE,
   OER_EXTRACTION_SERVICE,
 } from '@edufeed-org/oer-nostr';
-import { OerSource } from '../oer/entities/oer-source.entity';
-import { OpenEducationalResource } from '../oer/entities/open-educational-resource.entity';
+import { OerSource, OpenEducationalResource } from '@edufeed-org/oer-entities';
 
 /**
  * Main application's NostrModule that provides the nostr services from
@@ -56,6 +57,11 @@ import { OpenEducationalResource } from '../oer/entities/open-educational-resour
     {
       provide: EVENT_DELETION_SERVICE,
       useExisting: EventDeletionService,
+    },
+    OerStorageService,
+    {
+      provide: OER_STORAGE_SERVICE,
+      useExisting: OerStorageService,
     },
     OerExtractionService,
     {

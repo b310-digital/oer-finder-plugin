@@ -1,6 +1,6 @@
 import { registerAs } from '@nestjs/config';
 
-export default registerAs('nostr', () => ({
+export const nostrConfig = registerAs('nostr', () => ({
   relayUrl: process.env.NOSTR_RELAY_URL || 'ws://localhost:10547',
   relayUrls: process.env.NOSTR_RELAY_URLS || '',
   reconnectDelayMs: parseInt(

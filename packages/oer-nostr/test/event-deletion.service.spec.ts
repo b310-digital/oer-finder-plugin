@@ -6,15 +6,15 @@ import {
 } from '../src/services/event-deletion.service';
 import { OER_SOURCE_REPOSITORY } from '../src/services/nostr-event-database.service';
 import type {
-  OerSourceEntity,
-  OpenEducationalResourceEntity,
-} from '../src/types/entities.types';
-import type { Event } from 'nostr-tools/core';
+  OerSource,
+  OpenEducationalResource,
+} from '@edufeed-org/oer-entities';
+import type { Event } from 'nostr-tools';
 import {
   EVENT_AMB_KIND,
   EVENT_FILE_KIND,
 } from '../src/constants/event-kinds.constants';
-import { EventFactory } from '../src/testing';
+import { EventFactory } from './fixtures';
 import { SOURCE_NAME_NOSTR } from '../src/constants/source.constants';
 
 /**
@@ -46,8 +46,8 @@ function createMockOerSource(
   eventId: string,
   kind: number,
   pubkey: string,
-  overrides: Partial<OerSourceEntity> = {},
-): OerSourceEntity {
+  overrides: Partial<OerSource> = {},
+): OerSource {
   const eventData: NostrEventData = {
     id: eventId,
     kind,
@@ -77,8 +77,8 @@ function createMockOerSource(
 
 describe('EventDeletionService', () => {
   let service: EventDeletionService;
-  let oerRepository: Repository<OpenEducationalResourceEntity>;
-  let oerSourceRepository: Repository<OerSourceEntity>;
+  let oerRepository: Repository<OpenEducationalResource>;
+  let oerSourceRepository: Repository<OerSource>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -119,8 +119,8 @@ describe('EventDeletionService', () => {
 
     service = module.get<EventDeletionService>(EventDeletionService);
     oerRepository =
-      module.get<Repository<OpenEducationalResourceEntity>>(OER_REPOSITORY);
-    oerSourceRepository = module.get<Repository<OerSourceEntity>>(
+      module.get<Repository<OpenEducationalResource>>(OER_REPOSITORY);
+    oerSourceRepository = module.get<Repository<OerSource>>(
       OER_SOURCE_REPOSITORY,
     );
   });
