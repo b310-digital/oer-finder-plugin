@@ -35,7 +35,7 @@ const SERVER_SOURCES: SourceConfig[] = [
 const DIRECT_SOURCES: SourceConfig[] = [
   { id: 'openverse', label: 'Openverse', checked: true },
   { id: 'arasaac', label: 'ARASAAC', checked: true },
-  { id: 'nostr-amb-relay', label: 'Nostr AMB Relay', baseUrl: 'ws://localhost:3334' },
+  { id: 'nostr-amb-relay', label: 'Nostr AMB Relay', baseUrl: 'wss://amb-relay.edufeed.org' },
   { id: 'rpi-virtuell', label: 'RPI-Virtuell' },
 ];
 
