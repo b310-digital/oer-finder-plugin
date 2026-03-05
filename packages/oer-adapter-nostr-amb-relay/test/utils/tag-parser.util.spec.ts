@@ -79,10 +79,16 @@ describe('parseColonSeparatedTags', () => {
 
     it('should produce an array of 2 audience objects when 2 audiences are defined', () => {
       const tags = [
-        ['audience:id', 'http://purl.org/dcx/lrmi-vocabs/educationalAudienceRole/teacher'],
+        [
+          'audience:id',
+          'http://purl.org/dcx/lrmi-vocabs/educationalAudienceRole/teacher',
+        ],
         ['audience:prefLabel:de', 'Teacher'],
         ['audience:type', 'Concept'],
-        ['audience:id', 'http://purl.org/dcx/lrmi-vocabs/educationalAudienceRole/student'],
+        [
+          'audience:id',
+          'http://purl.org/dcx/lrmi-vocabs/educationalAudienceRole/student',
+        ],
         ['audience:prefLabel:de', 'Student'],
         ['audience:type', 'Concept'],
       ];
@@ -132,13 +138,10 @@ describe('parseColonSeparatedTags', () => {
 
       const result = parseColonSeparatedTags(tags);
 
-      expect(Array.isArray(result.creator)).toBe(true);
-      const creators = result.creator as Array<Record<string, unknown>>;
-      expect(creators).toHaveLength(2);
-
-      const charlie = creators.find((c) => c.name === 'Charlie');
-      expect(charlie).toBeDefined();
-      expect(charlie).not.toHaveProperty('honorificPrefix');
+      expect(result.creator).toEqual([
+        { name: 'Dr. Alice', type: 'Person', honorificPrefix: 'Dr.' },
+        { name: 'Charlie', type: 'Person' },
+      ]);
     });
   });
 

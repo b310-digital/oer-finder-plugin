@@ -80,17 +80,29 @@ describe('mapNostrAmbEventToExternalOerItem', () => {
         ['publisher:id', 'https://example.edu'],
         ['license:id', 'https://creativecommons.org/licenses/by-sa/4.0/'],
         ['isAccessibleForFree', 'true'],
-        ['conditionsOfAccess:id', 'http://w3id.org/kim/conditionsOfAccess/no_login'],
+        [
+          'conditionsOfAccess:id',
+          'http://w3id.org/kim/conditionsOfAccess/no_login',
+        ],
         ['conditionsOfAccess:type', 'Concept'],
         ['about:id', 'https://w3id.org/kim/hochschulfaechersystematik/n0'],
         ['about:prefLabel:de', 'General Studies'],
-        ['educationalLevel:id', 'https://w3id.org/kim/educationalLevel/level_A'],
+        [
+          'educationalLevel:id',
+          'https://w3id.org/kim/educationalLevel/level_A',
+        ],
         ['educationalLevel:prefLabel:de', 'Higher Education'],
         ['educationalLevel:prefLabel:en', 'Higher Education'],
-        ['audience:id', 'http://purl.org/dcx/lrmi-vocabs/educationalAudienceRole/teacher'],
+        [
+          'audience:id',
+          'http://purl.org/dcx/lrmi-vocabs/educationalAudienceRole/teacher',
+        ],
         ['audience:prefLabel:de', 'Teacher'],
         ['audience:type', 'Concept'],
-        ['audience:id', 'http://purl.org/dcx/lrmi-vocabs/educationalAudienceRole/student'],
+        [
+          'audience:id',
+          'http://purl.org/dcx/lrmi-vocabs/educationalAudienceRole/student',
+        ],
         ['audience:prefLabel:de', 'Student'],
         ['audience:type', 'Concept'],
         ['learningResourceType:id', 'https://w3id.org/kim/hcrt/text'],
@@ -138,7 +150,6 @@ describe('mapNostrAmbEventToExternalOerItem', () => {
     });
 
     it('should map all 3 creators as an array of Person objects', () => {
-      expect(Array.isArray(result.amb.creator)).toBe(true);
       expect(result.amb.creator).toEqual([
         {
           name: 'Dr. Alice',
@@ -161,7 +172,6 @@ describe('mapNostrAmbEventToExternalOerItem', () => {
     });
 
     it('should map both audiences as an array of Concept objects', () => {
-      expect(Array.isArray(result.amb.audience)).toBe(true);
       expect(result.amb.audience).toEqual([
         {
           id: 'http://purl.org/dcx/lrmi-vocabs/educationalAudienceRole/teacher',
@@ -246,13 +256,10 @@ describe('mapNostrAmbEventToExternalOerItem', () => {
 
       const result = mapNostrAmbEventToExternalOerItem(event);
 
-      expect(Array.isArray(result.amb.creator)).toBe(true);
-      const creators = result.amb.creator as Array<Record<string, unknown>>;
-      expect(creators).toHaveLength(2);
-
-      const charlie = creators.find((c) => c.name === 'Charlie');
-      expect(charlie).toBeDefined();
-      expect(charlie).not.toHaveProperty('honorificPrefix');
+      expect(result.amb.creator).toEqual([
+        { name: 'Dr. Alice', type: 'Person', honorificPrefix: 'Dr.' },
+        { name: 'Charlie', type: 'Person', id: 'https://example.edu/users/charlie' },
+      ]);
     });
   });
 
